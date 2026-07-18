@@ -34,20 +34,48 @@ pip install -r requirements.txt
 
 ## Data
 
-The notebooks expect input CSV files; the raw datasets are not included in this repository. Provide your own input files and update the `pd.read_csv("")` paths at the top of each notebook accordingly. `Data_cleaning.ipynb` also writes its result via `to_csv("")` in its final cell — set that output path too.
+Bring your own data. The raw datasets are intentionally **not** committed to
+this repository. The notebooks read their inputs from default paths under
+`data/`; point those paths at your own files (or overwrite the files at those
+paths). The notebook read/write cells are:
 
-Suggested local layout:
+- `Data_cleaning.ipynb` — reads `data/sample_raw.csv` (raw experiment output),
+  writes `data/cleaned_sor.csv` (cleaned SOR-solver slice).
+- `EPB_analysis_graph.ipynb` and `Comparison.ipynb` — each read
+  `data/benchmark.csv` (benchmark table) and `data/processed_epb.csv`
+  (processed TorchPB table).
+
+Expected local layout:
 
 ```text
 project_root/
 ├── data/
-│   ├── benchmark.csv
-│   └── processed_epb.csv
+│   ├── sample_raw.csv        # raw input for Data_cleaning.ipynb
+│   ├── benchmark.csv         # benchmark table for the analysis notebooks
+│   └── processed_epb.csv     # processed TorchPB table for the analysis notebooks
+├── scripts/
+│   └── generate_sample_data.py
 ├── Data_cleaning.ipynb
 ├── EPB_analysis_graph.ipynb
 ├── Comparison.ipynb
 └── README.md
 ```
+
+### Sample data for a dry run
+
+If you just want to exercise the notebooks end to end without real data, you
+can generate small synthetic CSVs that match the exact schema each notebook
+expects (only `pandas` and `numpy` are needed):
+
+```bash
+python scripts/generate_sample_data.py            # writes into data/
+python scripts/generate_sample_data.py --out-dir data --seed 0
+```
+
+This produces `data/sample_raw.csv`, `data/benchmark.csv`, and
+`data/processed_epb.csv` at the default paths above. The synthetic values are
+meaningless — this is only for a plumbing check, not real analysis. All
+generated CSVs are git-ignored.
 
 ## Running
 
@@ -55,4 +83,4 @@ project_root/
 jupyter notebook                 # or: jupyter lab
 ```
 
-Open each notebook in order — `Data_cleaning.ipynb` first (cleans the raw experiment CSV; its final cell exports one cleaned per-solver slice to the `to_csv` path you set), then `EPB_analysis_graph.ipynb` or `Comparison.ipynb`. The two analysis notebooks each read two CSVs (a benchmark table and a processed EPB table) — point their `pd.read_csv("")` calls at your benchmark file and the cleaned data.
+Open each notebook in order — `Data_cleaning.ipynb` first (cleans the raw experiment CSV; its final cell exports one cleaned per-solver slice to `data/cleaned_sor.csv`), then `EPB_analysis_graph.ipynb` or `Comparison.ipynb`. The two analysis notebooks each read two CSVs (a benchmark table and a processed EPB table) from `data/benchmark.csv` and `data/processed_epb.csv`. Adjust those default paths at the top of each notebook if your files live elsewhere.
